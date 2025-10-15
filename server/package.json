@@ -1,0 +1,9 @@
+{
+  "name": "intellisense-server",
+  "version": "1.0.0",
+  "description": "Upload processing server for Intellisense (uploads -> GCS or local)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}

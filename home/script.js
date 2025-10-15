@@ -149,18 +149,55 @@ document.querySelectorAll(".timeline-content, .hexagon").forEach((el) => {
   observer.observe(el);
 });
 
-document.querySelector(".submit-btn").addEventListener("click", function (e) {
-  e.preventDefault();
-  this.innerHTML = "TRANSMITTING...";
-  this.style.background = "linear-gradient(45deg, #8000ff, #00ffff)";
+// Upload handling: expects an <input type="file" id="file-input"> and an optional input[name="nickname"]
+const submitBtn = document.querySelector('.submit-btn');
+if (submitBtn) {
+  submitBtn.addEventListener('click', async function (e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('file-input');
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+      // no file selected; you can show a message
+      alert('Please choose a file to upload');
+      return;
+    }
 
-  setTimeout(() => {
-    this.innerHTML = "TRANSMISSION COMPLETE";
-    this.style.background = "linear-gradient(45deg, #00ff00, #00ffff)";
+    const file = fileInput.files[0];
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      alert('Invalid file type. Allowed: jpg, jpeg, png, webp');
+      return;
+    }
 
-    setTimeout(() => {
-      this.innerHTML = "TRANSMIT TO MATRIX";
-      this.style.background = "linear-gradient(45deg, #00ffff, #ff0080)";
-    }, 2000);
-  }, 1500);
-});
+    submitBtn.innerText = 'Submitting';
+
+    const nicknameInput = document.querySelector('input[name="nickname"]');
+    const nickname = (nicknameInput && nicknameInput.value) ? nicknameInput.value : 'anonymous';
+
+    // read file as base64
+    const toBase64 = (f) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(f);
+    });
+
+    try {
+      const dataBase64 = await toBase64(file);
+      const payload = { filename: file.name, mimetype: file.type, dataBase64, nickname };
+      // use Vercel serverless path
+      const res = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (data && data.success) {
+        submitBtn.innerText = 'Submission Completed';
+        setTimeout(() => { submitBtn.innerText = 'Submit'; }, 2000);
+      } else {
+        alert('Upload failed');
+        submitBtn.innerText = 'Submit';
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Upload error');
+      submitBtn.innerText = 'Submit';
+    }
+  });
+}
