@@ -1,9 +1,0 @@
-{
-  "name": "intellisense-root",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "megajs": "^6.0.0",
-    "mime-types": "^2.1.35"
-  }
-}
