@@ -559,6 +559,15 @@ nav {
   margin-bottom: 0;
   font-weight: 300;
 }
+.intellisense-description p span {
+  font-family: "Prompt", "Inter", sans-serif;
+  font-size: 1.2rem;
+  color: #360bd4;
+  line-height: 1.7;
+  margin-bottom: 0;
+  font-weight: 300;
+}
+
 @keyframes fadeInScale {
   from {
     opacity: 0;
