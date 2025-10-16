@@ -562,10 +562,11 @@ nav {
 .intellisense-description p span {
   font-family: "Prompt", "Inter", sans-serif;
   font-size: 1.2rem;
-  color: #360bd4;
+  color: #e0a3ff;
   line-height: 1.7;
   margin-bottom: 0;
   font-weight: 300;
+  text-shadow: 0 0 10px rgba(224, 163, 255, 0.4);
 }
 
 @keyframes fadeInScale {
