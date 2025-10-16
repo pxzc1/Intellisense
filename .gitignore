@@ -11,9 +11,4 @@ dist/
 /.cache/
 /.DS_Store
 
-uploads/
-
-#temporary disable
-server/
-
 submissions.json
