@@ -394,7 +394,7 @@ nav {
   transform: translateY(-2px);
 }
 
-.hero {
+.intellisense {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -402,7 +402,7 @@ nav {
   position: relative;
   overflow: hidden;
 }
-.hero::before {
+.intellisense::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -415,10 +415,10 @@ nav {
     transparent 70%
   );
   transform: translate(-50%, -50%);
-  animation: heroGlow 10s ease-in-out infinite;
+  animation: intellisenseGlow 10s ease-in-out infinite;
   z-index: -1;
 }
-@keyframes heroGlow {
+@keyframes intellisenseGlow {
   0%,
   100% {
     transform: translate(-50%, -50%) scale(1) rotate(0deg);
@@ -429,11 +429,11 @@ nav {
     opacity: 1;
   }
 }
-.hero-content {
+.intellisense-content {
   max-width: 1000px;
   padding: 80px 40px;
   margin-top: 120px;
-  animation: heroAppear 2.5s ease-out;
+  animation: intellisenseAppear 2.5s ease-out;
   position: relative;
   background: none;
   backdrop-filter: none;
@@ -441,7 +441,7 @@ nav {
   box-shadow: none;
   border-radius: 0;
 }
-@keyframes heroAppear {
+@keyframes intellisenseAppear {
   from {
     opacity: 0;
     transform: translateY(60px) scale(0.96);
@@ -451,7 +451,7 @@ nav {
     transform: translateY(0) scale(1);
   }
 }
-.hero-subtitle {
+.intellisense-subtitle {
   font-size: 0.9rem;
   color: #e0a3ff;
   margin-bottom: 25px;
@@ -463,8 +463,8 @@ nav {
   display: inline-block;
   font-weight: 300;
 }
-.hero-subtitle::before,
-.hero-subtitle::after {
+.intellisense-subtitle::before,
+.intellisense-subtitle::after {
   content: "";
   position: absolute;
   top: 50%;
@@ -473,10 +473,10 @@ nav {
   background: linear-gradient(90deg, transparent, #e0a3ff, transparent);
   animation: linePulse 3s ease infinite;
 }
-.hero-subtitle::before {
+.intellisense-subtitle::before {
   left: -60px;
 }
-.hero-subtitle::after {
+.intellisense-subtitle::after {
   right: -60px;
 }
 @keyframes linePulse {
@@ -500,7 +500,7 @@ nav {
     transform: translateX(0);
   }
 }
-.hero h1 {
+.intellisense h1 {
   font-size: clamp(2.2rem, 6vw, 4rem);
   margin-bottom: 30px;
   background: linear-gradient(
@@ -544,14 +544,15 @@ nav {
     transform: translateX(0);
   }
 }
-.hero-description {
+.intellisense-description {
   max-width: 700px;
   margin: 40px auto 50px;
   opacity: 0;
   animation: fadeInScale 1.2s ease 0.9s forwards;
   text-align: center;
 }
-.hero-description p {
+.intellisense-description p {
+  font-family: "Prompt", "Inter", sans-serif;
   font-size: 1.2rem;
   color: #d1d1d1;
   line-height: 1.7;
@@ -568,7 +569,7 @@ nav {
     transform: scale(1);
   }
 }
-.hero-stats {
+.intellisense-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 40px;
@@ -577,7 +578,7 @@ nav {
   opacity: 0;
   animation: slideUpStagger 1.2s ease 1.2s forwards;
 }
-.hero-stat {
+.intellisense-stat {
   text-align: center;
   position: relative;
   padding: 20px;
@@ -591,12 +592,12 @@ nav {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
 }
-.hero-stat:hover {
+.intellisense-stat:hover {
   transform: translateY(-8px) scale(1.05);
   border-color: rgba(255, 105, 180, 0.3);
   box-shadow: 0 20px 40px rgba(224, 163, 255, 0.1);
 }
-.hero-stat-number {
+.intellisense-stat-number {
   font-size: 1.8rem;
   font-weight: 700;
   color: #e0a3ff;
@@ -604,7 +605,7 @@ nav {
   text-shadow: 0 0 15px rgba(224, 163, 255, 0.4);
   margin-bottom: 8px;
 }
-.hero-stat-label {
+.intellisense-stat-label {
   font-size: 0.8rem;
   color: #999;
   text-transform: uppercase;
@@ -1283,34 +1284,34 @@ footer {
   }
 }
 @media (max-width: 768px) {
-  .hero-content {
+  .intellisense-content {
     padding: 40px 20px;
   }
-  .hero h1 {
+  .intellisense h1 {
     font-size: clamp(1.8rem, 8vw, 3rem);
   }
-  .hero-description p {
+  .intellisense-description p {
     font-size: 1.1rem;
   }
-  .hero-stats {
+  .intellisense-stats {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     margin: 40px auto 35px;
   }
-  .hero-stat {
+  .intellisense-stat {
     padding: 15px;
   }
-  .hero-stat-number {
+  .intellisense-stat-number {
     font-size: 1.5rem;
   }
-  .hero-subtitle::before,
-  .hero-subtitle::after {
+  .intellisense-subtitle::before,
+  .intellisense-subtitle::after {
     width: 25px;
   }
-  .hero-subtitle::before {
+  .intellisense-subtitle::before {
     left: -35px;
   }
-  .hero-subtitle::after {
+  .intellisense-subtitle::after {
     right: -35px;
   }
   .cta-buttons {
