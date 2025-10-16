@@ -13,4 +13,7 @@ dist/
 
 uploads/
 
+#temporary disable
+server/
+
 submissions.json
