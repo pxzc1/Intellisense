@@ -1,4 +1,4 @@
-Flower Recognition Program Using Machine Learning: Project from Naresuan University Demonstration School
+<p style="text-align: center">Flower Recognition Program Using Machine Learning: Project from Naresuan University Demonstration School</p>
 
 1. Overview:
   This project presents a machine learning–based flower recognition program developed by students from Nawarat University Demonstration School.
