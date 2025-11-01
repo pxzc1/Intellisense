@@ -837,7 +837,7 @@ nav {
   background-image: url("asset/imgs/machinelearning.webp");
 }
 .feature-row:nth-child(2) .feature-visual {
-  background-image: url("images/templatemo-neural-02.jpg");
+  background-image: url("asset/imgs/operations.jpg");
 }
 .feature-row:nth-child(3) .feature-visual {
   background-image: url("images/templatemo-neural-03.jpg");
@@ -1400,5 +1400,6 @@ footer {
   background: linear-gradient(45deg, #ff0080, #8000ff);
   box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
 }
+
 
 
