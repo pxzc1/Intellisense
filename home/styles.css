@@ -803,13 +803,13 @@ nav {
   );
 }
 .feature-row:nth-child(1) .feature-visual {
-  background-image: url("asset/imgs/machinelearning.webp");
+  background-image: url("asset/imgs/machinelearning.jpg");
 }
 .feature-row:nth-child(2) .feature-visual {
   background-image: url("asset/imgs/operations.jpg");
 }
 .feature-row:nth-child(3) .feature-visual {
-  background-image: url("asset/imgs/procedures.webp");
+  background-image: url("asset/imgs/procedures.jpg");
 }
 .feature-icon {
   font-size: 4rem;
@@ -1334,6 +1334,7 @@ footer {
   background: linear-gradient(45deg, #ff0080, #8000ff);
   box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
 }
+
 
 
 
