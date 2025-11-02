@@ -788,7 +788,6 @@ nav {
 .feature-content {
   flex: 1;
   padding: 50px;
-  transform: skew(-5deg);
   transition: all 0.4s ease;
 }
 .feature-content:hover {
@@ -1407,3 +1406,4 @@ footer {
   background: linear-gradient(45deg, #ff0080, #8000ff);
   box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
 }
+
