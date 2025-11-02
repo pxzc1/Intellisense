@@ -802,10 +802,15 @@ nav {
     rgba(255, 105, 180, 0.2)
   );
 }
+.feature-row:nth-child(1) .feature-visual {
+  background-image: url("asset/imgs/machinelearning.webp");
+}
 .feature-row:nth-child(2) .feature-visual {
   background-image: url("asset/imgs/operations.jpg");
 }
-
+.feature-row:nth-child(3) .feature-visual {
+  background-image: url("asset/imgs/procedures.webp");
+}
 .feature-icon {
   font-size: 4rem;
   margin-bottom: 25px;
@@ -833,10 +838,12 @@ nav {
 }
 .hexagon-container {
   display: flex;
+  /* FIX: Added justify-content to center the hexagons */
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 40px;
+  /* FIX: Added max-width and margin to center the container */
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
@@ -845,7 +852,8 @@ nav {
   font-family: "Prompt", sans-serif;
   width: 220px;
   height: 290px;
-  
+  /* FIX: Changed margin to 0 to rely on flexbox gap for horizontal spacing */
+  margin: 30px 0;
 }
 
 .hexagon-inner {
@@ -1178,7 +1186,7 @@ footer {
   .feature-row {
     flex-direction: column;
     gap: 40px;
-    min-height: 720px;
+    /* REMOVED min-height: 720px; as it can cause excess space */
   }
 
   .feature-row:nth-child(even) {
@@ -1214,6 +1222,11 @@ footer {
 }
 
 @media (max-width: 1000px) {
+  /* FIX: Adjust header padding for mobile */
+  header {
+    padding: 15px 20px;
+  }
+  
   .nav-links {
     display: none;
   }
@@ -1265,9 +1278,11 @@ footer {
   }
 
   .hexagon {
-    width: 280px;
+    width: 100%; /* FIX: Use 100% width to be responsive */
+    max-width: 280px; /* Constrain to max size */
     height: 320px;
-    margin: 30px auto;
+    /* FIX: Reduced vertical margin, auto handles horizontal centering */
+    margin: 15px auto; 
   }
 
   .hexagon-inner {
@@ -1291,9 +1306,11 @@ footer {
 
   .hexagon-container {
     gap: 20px;
+    justify-content: center; /* Ensure centering on mobile */
   }
   .section-title {
     margin-bottom: 60px;
+    text-align: center; /* FIX: Center all section titles on mobile */
   }
   .features,
   .showcase,
@@ -1310,6 +1327,18 @@ footer {
   }
   .footer-links a {
     font-size: 0.85rem;
+  }
+
+  /*
+  * FIX: Add fallback images for mobile browsers that don't support .webp
+  * Make sure you have .jpg (or .png) versions of these files
+  * in your 'asset/imgs/' folder.
+  */
+  .feature-row:nth-child(1) .feature-visual {
+    background-image: url("asset/imgs/machinelearning.jpg");
+  }
+  .feature-row:nth-child(3) .feature-visual {
+    background-image: url("asset/imgs/procedures.jpg");
   }
 }
 
@@ -1329,8 +1358,3 @@ footer {
   background: linear-gradient(45deg, #ff0080, #8000ff);
   box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
 }
-
-
-
-
-
