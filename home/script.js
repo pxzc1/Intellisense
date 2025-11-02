@@ -1,4 +1,3 @@
-//const backendURL = "idk"
 const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
 const mobileNav = document.querySelector(".mobile-nav");
 
@@ -148,15 +147,12 @@ document.querySelectorAll(".timeline-content, .hexagon").forEach((el) => {
   el.style.transition = "opacity 0.8s ease, transform 0.8s ease";
   observer.observe(el);
 });
-
-// Upload handling: expects an <input type="file" id="file-input"> and an optional input[name="nickname"]
 const submitBtn = document.querySelector('.submit-btn');
 if (submitBtn) {
   submitBtn.addEventListener('click', async function (e) {
     e.preventDefault();
     const fileInput = document.getElementById('file-input');
     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-      // no file selected; you can show a message
       alert('Please choose a file to upload');
       return;
     }
@@ -172,8 +168,6 @@ if (submitBtn) {
 
     const nicknameInput = document.querySelector('input[name="nickname"]');
     const nickname = (nicknameInput && nicknameInput.value) ? nicknameInput.value : 'anonymous';
-
-    // read file as base64
     const toBase64 = (f) => new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result.split(',')[1]);
@@ -184,7 +178,6 @@ if (submitBtn) {
     try {
       const dataBase64 = await toBase64(file);
       const payload = { filename: file.name, mimetype: file.type, dataBase64, nickname };
-      // use Vercel serverless path
       const res = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
       if (data && data.success) {
@@ -201,3 +194,20 @@ if (submitBtn) {
     }
   });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('file-input');
+    const fileNameDisplay = document.getElementById('file-name-display');
+
+    if (fileInput && fileNameDisplay) {
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name;
+                fileNameDisplay.style.opacity = '1'; 
+            } else {
+                fileNameDisplay.textContent = 'No file selected.';
+                fileNameDisplay.style.opacity = '0.7'; 
+            }
+        });
+    }
+});
