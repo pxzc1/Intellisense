@@ -930,7 +930,7 @@ nav {
   align-items: center;
 }
 .contact-info {
-  padding: 60px 40px;
+  padding: 20px 40px;
   position: relative;
 }
 .contact-info::before {
@@ -1334,5 +1334,6 @@ footer {
   background: linear-gradient(45deg, #ff0080, #8000ff);
   box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
 }
+
 
 
