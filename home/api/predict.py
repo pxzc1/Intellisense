@@ -1,113 +1,98 @@
-import torch
-import torch.nn as nn
-from torchvision.models import resnet18
-from torchvision import transforms
-from PIL import Image
 import json
+import numpy as np
+from PIL import Image
 from io import BytesIO
+import onnxruntime as ort
 
 # ----------------------
 # CONFIG
 # ----------------------
-MODEL_PTH = "../../parameters.pth"      # path to saved model from root
-CLASS_JSON = "../../class_to_idx.json"  # path to class mapping from root
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+MODEL_ONNX = "../../model.onnx"
+CLASS_JSON = "../../class_to_idx.json"
 
 # ----------------------
-# Load class mapping (same as model.py)
+# Load class mapping
 # ----------------------
 try:
     with open(CLASS_JSON, "r") as f:
         data = json.load(f)
-        if isinstance(data, dict) and "class_to_idx" in data:
-            class_to_idx = data["class_to_idx"]
-        else:
-            class_to_idx = data
+        class_to_idx = data["class_to_idx"] if "class_to_idx" in data else data
 except Exception as e:
     print(f"Error loading class_to_idx: {e}")
     class_to_idx = {}
 
-# Reverse mapping
 idx_to_class = {v: k for k, v in class_to_idx.items()}
 num_classes = len(idx_to_class)
 
-print(f"Loaded {num_classes} classes")
-print(f"Classes: {list(idx_to_class.values())}")
-
 # ----------------------
-# Load model (same as model.py)
+# Load ONNX model
 # ----------------------
 try:
-    model = resnet18(weights=None)
-    model.fc = nn.Linear(model.fc.in_features, num_classes)
-    checkpoint = torch.load(MODEL_PTH, map_location=DEVICE)
-    model.load_state_dict(checkpoint["model_state_dict"])
-    model = model.to(DEVICE)
-    model.eval()
-    print(f"Model loaded successfully on {DEVICE}")
+    session = ort.InferenceSession(MODEL_ONNX, providers=["CPUExecutionProvider"])
+    print("ONNX model loaded successfully")
 except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None
+    print(f"Error loading ONNX model: {e}")
+    session = None
 
 # ----------------------
-# Preprocessing (same as model.py)
+# Preprocessing
 # ----------------------
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
+def preprocess(img):
+    img = img.resize((224, 224))
+
+    img = np.array(img).astype(np.float32) / 255.0
+
+    mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+    std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+
+    img = (img - mean) / std
+
+    img = np.transpose(img, (0, 1, 2))      # HWC → CHW
+    img = np.expand_dims(img, axis=0)       # CHW → 1xCHW
+
+    return img.astype(np.float32)
 
 # ----------------------
-# Prediction function (adapted from model.py)
+# Prediction function
 # ----------------------
 def predict_image(image_bytes):
-    """
-    Takes image bytes from frontend and returns prediction
-    Follows exact logic from model.py predict_image()
-    """
+    if session is None:
+        return {
+            "success": False,
+            "error": "Model failed to load"
+        }
+
     try:
-        if model is None:
-            return {
-                'success': False,
-                'error': 'Model failed to load'
-            }
-
-        # Load image from bytes (instead of file path)
         img = Image.open(BytesIO(image_bytes)).convert("RGB")
-        tensor = transform(img).unsqueeze(0).to(DEVICE)
+        tensor = preprocess(img)
 
-        # Predict (exact same logic as model.py)
-        with torch.no_grad():
-            outputs = model(tensor)
-            probs = torch.softmax(outputs, dim=1)
-            conf, pred_idx = torch.max(probs, dim=1)
+        inputs = {session.get_inputs()[0].name: tensor}
+        outputs = session.run(None, inputs)[0]
 
-        pred_class = idx_to_class[pred_idx.item()]
-        conf_percent = conf.item() * 100
+        probs = np.exp(outputs) / np.sum(np.exp(outputs), axis=1, keepdims=True)
+
+        pred_idx = int(np.argmax(probs))
+        conf = float(probs[0][pred_idx] * 100.0)
+
+        pred_class = idx_to_class[pred_idx]
 
         return {
-            'success': True,
-            'prediction': pred_class,
-            'confidence': conf_percent
+            "success": True,
+            "prediction": pred_class,
+            "confidence": conf
         }
 
     except Exception as e:
-        print(f"Prediction error: {str(e)}")
+        print(f"Prediction error: {e}")
         return {
-            'success': False,
-            'error': str(e)
+            "success": False,
+            "error": str(e)
         }
 
 # ----------------------
 # Vercel Handler
 # ----------------------
 def handler(request):
-    """
-    Handle POST requests from frontend
-    Returns prediction and confidence
-    """
-    # Handle CORS preflight
     if request.method == 'OPTIONS':
         return {
             'statusCode': 200,
@@ -126,7 +111,6 @@ def handler(request):
         }
 
     try:
-        # Get image file from request
         if 'flower_image' not in request.files:
             return {
                 'statusCode': 400,
@@ -143,31 +127,18 @@ def handler(request):
                 'headers': {'Access-Control-Allow-Origin': '*'}
             }
 
-        # Read image bytes
         image_bytes = file.read()
 
-        # Make prediction using model.py logic
         result = predict_image(image_bytes)
 
-        if result['success']:
-            return {
-                'statusCode': 200,
-                'body': json.dumps({
-                    'success': True,
-                    'prediction': result['prediction'],
-                    'confidence': result['confidence']
-                }),
-                'headers': {'Access-Control-Allow-Origin': '*'}
-            }
-        else:
-            return {
-                'statusCode': 500,
-                'body': json.dumps({'success': False, 'error': result['error']}),
-                'headers': {'Access-Control-Allow-Origin': '*'}
-            }
+        return {
+            'statusCode': 200 if result['success'] else 500,
+            'body': json.dumps(result),
+            'headers': {'Access-Control-Allow-Origin': '*'}
+        }
 
     except Exception as e:
-        print(f'Handler error: {str(e)}')
+        print(f"Handler error: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps({'success': False, 'error': str(e)}),
