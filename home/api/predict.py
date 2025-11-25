@@ -1,5 +1,4 @@
 import json
-import numpy as np
 from PIL import Image
 from io import BytesIO
 import onnxruntime as ort
@@ -16,7 +15,7 @@ CLASS_JSON = "../../class_to_idx.json"
 try:
     with open(CLASS_JSON, "r") as f:
         data = json.load(f)
-        class_to_idx = data["class_to_idx"] if "class_to_idx" in data else data
+        class_to_idx = data.get("class_to_idx", data)
 except Exception as e:
     print(f"Error loading class_to_idx: {e}")
     class_to_idx = {}
@@ -35,59 +34,61 @@ except Exception as e:
     session = None
 
 # ----------------------
-# Preprocessing
+# Preprocessing (pure Python)
 # ----------------------
 def preprocess(img):
     img = img.resize((224, 224))
+    img = img.convert("RGB")
+    pixels = list(img.getdata())
+    
+    # Normalize
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
+    
+    # Convert HWC → CHW
+    chw = [[], [], []]
+    for r, g, b in pixels:
+        chw[0].append((r / 255.0 - mean[0]) / std[0])
+        chw[1].append((g / 255.0 - mean[1]) / std[1])
+        chw[2].append((b / 255.0 - mean[2]) / std[2])
 
-    img = np.array(img).astype(np.float32) / 255.0
+    # Flatten into 1x3x224x224
+    tensor = [chw[0], chw[1], chw[2]]
+    return [tensor]  # shape: [1,3,224*224] acceptable for ONNX
 
-    mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
-    std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
-
-    img = (img - mean) / std
-
-    img = np.transpose(img, (0, 1, 2))      # HWC → CHW
-    img = np.expand_dims(img, axis=0)       # CHW → 1xCHW
-
-    return img.astype(np.float32)
+# ----------------------
+# Softmax (pure Python)
+# ----------------------
+def softmax(logits):
+    max_logit = max(logits)
+    exps = [pow(2.718281828459045, l - max_logit) for l in logits]
+    sum_exps = sum(exps)
+    return [e / sum_exps for e in exps]
 
 # ----------------------
 # Prediction function
 # ----------------------
 def predict_image(image_bytes):
     if session is None:
-        return {
-            "success": False,
-            "error": "Model failed to load"
-        }
+        return {"success": False, "error": "Model failed to load"}
 
     try:
         img = Image.open(BytesIO(image_bytes)).convert("RGB")
         tensor = preprocess(img)
 
         inputs = {session.get_inputs()[0].name: tensor}
-        outputs = session.run(None, inputs)[0]
+        outputs = session.run(None, inputs)[0][0]  # 1D output
 
-        probs = np.exp(outputs) / np.sum(np.exp(outputs), axis=1, keepdims=True)
+        probs = softmax(list(outputs))
+        pred_idx = probs.index(max(probs))
+        conf = probs[pred_idx] * 100.0
+        pred_class = idx_to_class.get(pred_idx, "Unknown")
 
-        pred_idx = int(np.argmax(probs))
-        conf = float(probs[0][pred_idx] * 100.0)
-
-        pred_class = idx_to_class[pred_idx]
-
-        return {
-            "success": True,
-            "prediction": pred_class,
-            "confidence": conf
-        }
+        return {"success": True, "prediction": pred_class, "confidence": conf}
 
     except Exception as e:
         print(f"Prediction error: {e}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return {"success": False, "error": str(e)}
 
 # ----------------------
 # Vercel Handler
@@ -119,7 +120,6 @@ def handler(request):
             }
 
         file = request.files['flower_image']
-
         if file.filename == '':
             return {
                 'statusCode': 400,
@@ -128,7 +128,6 @@ def handler(request):
             }
 
         image_bytes = file.read()
-
         result = predict_image(image_bytes)
 
         return {
