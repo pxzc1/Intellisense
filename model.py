@@ -1,70 +1,77 @@
+import os
+import json
+from PIL import Image
 import torch
 import torch.nn as nn
+import torchvision.transforms as T
 from torchvision.models import resnet18
-from torchvision import transforms
-from PIL import Image
-import json
-import os
 
-# ----------------------
-# CONFIG
-# ----------------------
-MODEL_PTH = "parameters.pth"          # your saved model
-CLASS_JSON = "class_to_idx.json"           # mapping file
-IMAGE_PATH = "imgs.jpg"            # this image will be pass from frontend likely from api-client.js and then predict.py -> model.py -> predict.py -> api-client.js for response
+# ----------------------------
+# Config
+# ----------------------------
+MODEL_PATH = "model.onnx"        # Path to your trained model
+CLASS_TO_IDX_PATH = "class_to_idx.json"   # Path to your class mapping JSON
+IMG_DIR = "/path/to/img"                  # Directory or file of images to test
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# ----------------------
+# ----------------------------
 # Load class mapping
-# ----------------------
-with open(CLASS_JSON, "r") as f:
-    class_to_idx = json.load(f)
-
-# Reverse mapping
+# ----------------------------
+with open(CLASS_TO_IDX_PATH, "r") as f:
+    data = json.load(f)
+class_to_idx = data["class_to_idx"]
 idx_to_class = {v: k for k, v in class_to_idx.items()}
-num_classes = len(idx_to_class)
 
-# ----------------------
-# Load model
-# ----------------------
+# ----------------------------
+# Define model
+# ----------------------------
+num_classes = len(class_to_idx)
 model = resnet18(weights=None)
-model.fc = nn.Linear(model.fc.in_features, num_classes)
-model.load_state_dict(torch.load(MODEL_PTH, map_location=DEVICE)["model_state_dict"])
+in_features = model.fc.in_features
+model.fc = nn.Linear(in_features, num_classes)
+model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE)["model_state_dict"])
 model = model.to(DEVICE)
-model.eval()
+model.eval()  # Important: set to evaluation mode
 
-# ----------------------
-# Preprocessing
-# ----------------------
-transform = transforms.Compose([
-    transforms.Resize((224,224)),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])
+# ----------------------------
+# Preprocessing transforms
+# ----------------------------
+transform = T.Compose([
+    T.Resize((224, 224)),
+    T.ToTensor(),
+    T.Normalize([0.485, 0.456, 0.406],
+                [0.229, 0.224, 0.225])
 ])
 
-# ----------------------
-# Prediction function
-# ----------------------
+# ----------------------------
+# Helper function for prediction
+# ----------------------------
 def predict_image(img_path):
-    if not os.path.exists(img_path):
-        print(f"File not found: {img_path}")
-        return
-
-    img = Image.open(img_path).convert("RGB")
-    tensor = transform(img).unsqueeze(0).to(DEVICE)
-
+    try:
+        img = Image.open(img_path).convert("RGB")
+    except Exception as e:
+        print(f"Failed to open image {img_path}: {e}")
+        return None, None
+    img_tensor = transform(img).unsqueeze(0).to(DEVICE)  # Add batch dim
     with torch.no_grad():
-        outputs = model(tensor)
+        outputs = model(img_tensor)
         probs = torch.softmax(outputs, dim=1)
         conf, pred_idx = torch.max(probs, dim=1)
+    return idx_to_class[pred_idx.item()], conf.item() * 100
 
-    pred_class = idx_to_class[pred_idx.item()]
-    conf_percent = conf.item() * 100
+# ----------------------------
+# Iterate over images
+# ----------------------------
+if os.path.isdir(IMG_DIR):
+    img_files = [os.path.join(IMG_DIR, f) for f in os.listdir(IMG_DIR)
+                 if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))]
+elif os.path.isfile(IMG_DIR):
+    img_files = [IMG_DIR]
+else:
+    raise FileNotFoundError(f"No valid file or directory at {IMG_DIR}")
 
-    print(f"Image: {img_path}")
-    print(f"Prediction: {pred_class} ({conf_percent:.2f}%)")
-
-# ----------------------
-# Run
-# ----------------------
-predict_image(IMAGE_PATH)
+print("Evaluating images...\n")
+for img_path in img_files:
+    pred_class, confidence = predict_image(img_path)
+    if pred_class is not None:
+        print(f"{img_path} -> Prediction: {pred_class} ({confidence:.2f}%)")
