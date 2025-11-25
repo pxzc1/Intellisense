@@ -1,8 +1,3 @@
-"""
-Vercel Serverless Function - Flower Prediction
-Follows the exact model.py prediction logic
-"""
-
 import torch
 import torch.nn as nn
 from torchvision.models import resnet18
@@ -21,21 +16,38 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # ----------------------
 # Load class mapping (same as model.py)
 # ----------------------
-with open(CLASS_JSON, "r") as f:
-    class_to_idx = json.load(f)
+try:
+    with open(CLASS_JSON, "r") as f:
+        data = json.load(f)
+        if isinstance(data, dict) and "class_to_idx" in data:
+            class_to_idx = data["class_to_idx"]
+        else:
+            class_to_idx = data
+except Exception as e:
+    print(f"Error loading class_to_idx: {e}")
+    class_to_idx = {}
 
 # Reverse mapping
 idx_to_class = {v: k for k, v in class_to_idx.items()}
 num_classes = len(idx_to_class)
 
+print(f"Loaded {num_classes} classes")
+print(f"Classes: {list(idx_to_class.values())}")
+
 # ----------------------
 # Load model (same as model.py)
 # ----------------------
-model = resnet18(weights=None)
-model.fc = nn.Linear(model.fc.in_features, num_classes)
-model.load_state_dict(torch.load(MODEL_PTH, map_location=DEVICE)["model_state_dict"])
-model = model.to(DEVICE)
-model.eval()
+try:
+    model = resnet18(weights=None)
+    model.fc = nn.Linear(model.fc.in_features, num_classes)
+    checkpoint = torch.load(MODEL_PTH, map_location=DEVICE)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model = model.to(DEVICE)
+    model.eval()
+    print(f"Model loaded successfully on {DEVICE}")
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model = None
 
 # ----------------------
 # Preprocessing (same as model.py)
@@ -55,6 +67,12 @@ def predict_image(image_bytes):
     Follows exact logic from model.py predict_image()
     """
     try:
+        if model is None:
+            return {
+                'success': False,
+                'error': 'Model failed to load'
+            }
+
         # Load image from bytes (instead of file path)
         img = Image.open(BytesIO(image_bytes)).convert("RGB")
         tensor = transform(img).unsqueeze(0).to(DEVICE)
