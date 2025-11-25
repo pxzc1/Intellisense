@@ -9,8 +9,8 @@ from io import BytesIO
 # ----------------------
 # CONFIG
 # ----------------------
-MODEL_PTH = "../parameters.pth"      # path to saved model from root
-CLASS_JSON = "../class_to_idx.json"  # path to class mapping from root
+MODEL_PTH = "../../parameters.pth"      # path to saved model from root
+CLASS_JSON = "../../class_to_idx.json"  # path to class mapping from root
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ----------------------
