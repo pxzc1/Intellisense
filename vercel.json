@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "framework": "vanilla",
   "buildCommand": "echo 'build complete'",
+  "outputDirectory": ".",
   "env": {
     "PYTHONUNBUFFERED": "1"
   },
