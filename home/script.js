@@ -147,7 +147,7 @@ document.querySelectorAll(".timeline-content, .hexagon").forEach((el) => {
   el.style.transition = "opacity 0.8s ease, transform 0.8s ease";
   observer.observe(el);
 });
-const submitBtn = document.querySelector('.submit-btn');
+
 if (submitBtn) {
   submitBtn.addEventListener('click', async function (e) {
     e.preventDefault();
@@ -211,3 +211,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+const fileInput = document.getElementById("file-input");
+const imagePreview = document.getElementById("image-preview");
+const submitBtn = document.getElementById("submit-btn");
+
+if (fileInput && imagePreview) {
+  fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+if (submitBtn) {
+  submitBtn.addEventListener("click", async () => {
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+      alert("Please choose a file to upload");
+      return;
+    }
+
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append("flower_image", file);
+
+    try {
+      const response = await fetch("/predict", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        alert(`Prediction: ${result.prediction} (Confidence: ${result.confidence}%)`);
+      } else {
+        alert("Prediction failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during prediction:", error);
+      alert("An error occurred. Please try again.");
+    }
+  });
+}

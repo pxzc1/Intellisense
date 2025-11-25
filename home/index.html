@@ -188,20 +188,24 @@
                         <mark style="color: #de28d5; background-color: transparent">(Accepted File Formats: .jpg, .jpeg, .png)</mark>
                     </p>
                 </div>
-                <div class="contact-form glass">
-                    <form action="#" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                    <input type="text" id="neural-id" name="nickname" placeholder="Name (Optional)">
-                </div>
+                <!-- Updated File Upload Section -->
                 <div class="form-group file-upload-container">
                     <input type="file" id="file-input" name="flower_image" accept=".jpg,.jpeg,.png,.webp" required>
-                    <label for="file-input" class="custom-file-label">
-                        <span class="browse-button">Browse...</span>
-                        <span class="file-name" id="file-name-display">No file selected.</span>
-                    </label>
+                    <label for="file-input" class="custom-file-label">Choose an Image</label>
+                    <div class="image-preview">
+                        <img id="image-preview" src="" alt="Preview" style="display: none;">
+                    </div>
+                    <button type="button" id="submit-btn" class="submit-btn">Submit</button>
                 </div>
-                    <button type="submit" class="submit-btn">Submit</button>
-                    </form>
+            </div>
+        </section>
+        <!-- Image Revealer Section -->
+        <section class="image-revealer">
+            <div class="image-revealer-container glass">
+                <input type="file" id="image-revealer-input" accept="image/*">
+                <label for="image-revealer-input" class="custom-file-label">Choose an Image</label>
+                <div class="image-preview">
+                    <img id="image-preview" src="" alt="Preview" style="display: none;">
                 </div>
             </div>
         </section>
