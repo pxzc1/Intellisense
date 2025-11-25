@@ -1,58 +1,70 @@
-from flask import Flask, request, jsonify
-import os
 import torch
 import torch.nn as nn
-from PIL import Image
-import torchvision.transforms as T
 from torchvision.models import resnet18
+from torchvision import transforms
+from PIL import Image
 import json
-import re
+import os
 
-app = Flask(__name__)
+# ----------------------
+# CONFIG
+# ----------------------
+MODEL_PTH = "parameters.pth"          # your saved model
+CLASS_JSON = "class_to_idx.json"           # mapping file
+IMAGE_PATH = "imgs.jpg"            # this image will be pass from frontend likely from api-client.js and then predict.py -> model.py -> predict.py -> api-client.js for response
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-MODEL_PATH = "parameters.pth"
-CLASS_IDX_PATH = "class_to_idx.json"
+# ----------------------
+# Load class mapping
+# ----------------------
+with open(CLASS_JSON, "r") as f:
+    class_to_idx = json.load(f)
 
-with open(CLASS_IDX_PATH, "r") as f:
-    data = json.load(f)
-class_to_idx = data["class_to_idx"]
+# Reverse mapping
 idx_to_class = {v: k for k, v in class_to_idx.items()}
+num_classes = len(idx_to_class)
 
-TRANSFORM = T.Compose([
-    T.Resize((224, 224)),
-    T.ToTensor(),
-    T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
-
-checkpoint = torch.load(MODEL_PATH, map_location="cpu")
-
+# ----------------------
+# Load model
+# ----------------------
 model = resnet18(weights=None)
-model.fc = nn.Linear(model.fc.in_features, len(class_to_idx))
-model.load_state_dict(checkpoint["model_state_dict"])
+model.fc = nn.Linear(model.fc.in_features, num_classes)
+model.load_state_dict(torch.load(MODEL_PTH, map_location=DEVICE)["model_state_dict"])
+model = model.to(DEVICE)
 model.eval()
 
-softmax = nn.Softmax(dim=1)
+# ----------------------
+# Preprocessing
+# ----------------------
+transform = transforms.Compose([
+    transforms.Resize((224,224)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485,0.456,0.406],[0.229,0.224,0.225])
+])
 
-@app.route("/predict", methods=["POST"])
-def predict():
-    if "flower_image" not in request.files:
-        return jsonify({"success": False, "error": "No file uploaded"})
+# ----------------------
+# Prediction function
+# ----------------------
+def predict_image(img_path):
+    if not os.path.exists(img_path):
+        print(f"File not found: {img_path}")
+        return
 
-    file = request.files["flower_image"]
-    try:
-        img = Image.open(file).convert("RGB")
-        img = TRANSFORM(img).unsqueeze(0)
+    img = Image.open(img_path).convert("RGB")
+    tensor = transform(img).unsqueeze(0).to(DEVICE)
 
-        with torch.no_grad():
-            out = model(img)
-            probs = softmax(out)
-            conf, pred = torch.max(probs, 1)
-            pred_class = idx_to_class[pred.item()]
-            confidence = conf.item() * 100
+    with torch.no_grad():
+        outputs = model(tensor)
+        probs = torch.softmax(outputs, dim=1)
+        conf, pred_idx = torch.max(probs, dim=1)
 
-        return jsonify({"success": True, "prediction": pred_class, "confidence": confidence})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+    pred_class = idx_to_class[pred_idx.item()]
+    conf_percent = conf.item() * 100
 
-if __name__ == "__main__":
-    app.run(debug=True)
+    print(f"Image: {img_path}")
+    print(f"Prediction: {pred_class} ({conf_percent:.2f}%)")
+
+# ----------------------
+# Run
+# ----------------------
+predict_image(IMAGE_PATH)

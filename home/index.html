@@ -9,11 +9,213 @@
         <link rel="icon" type="image/svg+xml" href="asset/imgs/favicon.svg">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-        <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet"> <!-- Prompt-->
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"> <!-- Inter -->
-        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet"> <!-- Roboto Mono -->
+        <link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
         <link href="styles.css" rel="stylesheet">
         <style>
+            /* Upload Section Styles */
+            .upload-section {
+              padding: 100px 20px;
+              background: linear-gradient(135deg, rgba(10, 10, 30, 0.8), rgba(30, 10, 50, 0.8));
+              position: relative;
+              overflow: hidden;
+            }
+
+            .upload-container {
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 50px;
+              border-radius: 20px;
+              background: rgba(255, 255, 255, 0.1);
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .upload-content {
+              display: flex;
+              flex-direction: column;
+              gap: 30px;
+            }
+
+            .file-input-wrapper {
+              display: flex;
+              flex-direction: column;
+              gap: 15px;
+            }
+
+            #file-input {
+              display: none;
+            }
+
+            .file-label {
+              padding: 15px 30px;
+              background: linear-gradient(135deg, #00ffff, #ff0080);
+              color: #fff;
+              border-radius: 10px;
+              cursor: pointer;
+              text-align: center;
+              font-weight: 600;
+              transition: all 0.3s ease;
+              box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            }
+
+            .file-label:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            }
+
+            .file-name {
+              color: #fff;
+              opacity: 0.7;
+              font-size: 14px;
+              transition: opacity 0.3s ease;
+            }
+
+            .image-preview {
+              min-height: 250px;
+              border-radius: 15px;
+              background: rgba(0, 255, 255, 0.1);
+              border: 2px dashed rgba(0, 255, 255, 0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              transition: all 0.3s ease;
+            }
+
+            .image-preview img {
+              max-width: 100%;
+              max-height: 100%;
+              object-fit: contain;
+              border-radius: 10px;
+            }
+
+            .image-preview:hover {
+              border-color: rgba(0, 255, 255, 0.6);
+              background: rgba(0, 255, 255, 0.15);
+            }
+
+            .submit-btn {
+              padding: 15px 30px;
+              background: linear-gradient(135deg, #ff0080, #8000ff);
+              color: #fff;
+              border: none;
+              border-radius: 10px;
+              font-weight: 600;
+              font-size: 16px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
+            }
+
+            .submit-btn:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+            }
+
+            .submit-btn:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
+
+            /* Flower Info Section */
+            .flower-info {
+              padding: 100px 20px;
+              background: linear-gradient(135deg, rgba(10, 10, 30, 0.8), rgba(30, 10, 50, 0.8));
+              position: relative;
+              overflow: hidden;
+            }
+
+            .flower-info-container {
+              max-width: 1000px;
+              margin: 0 auto;
+              padding: 40px;
+              border-radius: 20px;
+              background: rgba(255, 255, 255, 0.08);
+              backdrop-filter: blur(10px);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .flower-details {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 40px;
+              margin-top: 30px;
+            }
+
+            .flower-prediction {
+              padding: 30px;
+              border-radius: 15px;
+              background: rgba(0, 255, 255, 0.1);
+              border: 1px solid rgba(0, 255, 255, 0.3);
+            }
+
+            .flower-prediction h3 {
+              font-size: 28px;
+              color: #00ffff;
+              margin-bottom: 15px;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+            }
+
+            .flower-prediction p {
+              font-size: 16px;
+              color: #fff;
+              opacity: 0.9;
+            }
+
+            .flower-characteristics {
+              display: flex;
+              flex-direction: column;
+              gap: 15px;
+            }
+
+            #flower-info-content {
+              display: grid;
+              gap: 15px;
+            }
+
+            #flower-info-content div {
+              padding: 15px;
+              border-radius: 10px;
+              background: rgba(255, 255, 255, 0.05);
+              border-left: 3px solid #ff0080;
+              transition: all 0.3s ease;
+            }
+
+            #flower-info-content div:hover {
+              background: rgba(255, 255, 255, 0.1);
+              transform: translateX(5px);
+            }
+
+            #flower-info-content strong {
+              color: #00ffff;
+              display: block;
+              margin-bottom: 8px;
+              font-size: 14px;
+            }
+
+            #flower-info-content p {
+              color: #fff;
+              opacity: 0.85;
+              font-size: 14px;
+              line-height: 1.6;
+            }
+
+            @media (max-width: 768px) {
+              .flower-details {
+                grid-template-columns: 1fr;
+              }
+
+              .upload-container {
+                padding: 30px;
+              }
+
+              .flower-info-container {
+                padding: 20px;
+              }
+            }
         </style>
     </head>
     <body>
@@ -43,31 +245,22 @@
                             </linearGradient>
                         </defs>
                         <circle cx="50" cy="30" r="8" fill="url(#logoGradient)" opacity="0.8">
-                            <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite">
-                            </animate>
+                            <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"></animate>
                         </circle>
                         <circle cx="30" cy="60" r="6" fill="url(#logoGradient)" opacity="0.6">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite">
-                            </animate>
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.5s" repeatCount="indefinite"></animate>
                         </circle>
                         <circle cx="70" cy="65" r="7" fill="url(#logoGradient)" opacity="0.7">
-                            <animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" repeatCount="indefinite">
-                            </animate>
+                            <animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" repeatCount="indefinite"></animate>
                         </circle>
-                        <line x1="50" y1="30" x2="30" y2="60" stroke="url(#logoGradient)" stroke-width="2"
-                            opacity="0.6">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite">
-                            </animate>
+                        <line x1="50" y1="30" x2="30" y2="60" stroke="url(#logoGradient)" stroke-width="2" opacity="0.6">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"></animate>
                         </line>
-                        <line x1="50" y1="30" x2="70" y2="65" stroke="url(#logoGradient)" stroke-width="2"
-                            opacity="0.6">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.2s" repeatCount="indefinite">
-                            </animate>
+                        <line x1="50" y1="30" x2="70" y2="65" stroke="url(#logoGradient)" stroke-width="2" opacity="0.6">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.2s" repeatCount="indefinite"></animate>
                         </line>
-                        <line x1="30" y1="60" x2="70" y2="65" stroke="url(#logoGradient)" stroke-width="2"
-                            opacity="0.6">
-                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.8s" repeatCount="indefinite">
-                            </animate>
+                        <line x1="30" y1="60" x2="70" y2="65" stroke="url(#logoGradient)" stroke-width="2" opacity="0.6">
+                            <animate attributeName="opacity" values="0.6;1;0.6" dur="2.8s" repeatCount="indefinite"></animate>
                         </line>
                     </svg>
                     INTELLISENSE
@@ -177,46 +370,47 @@
                 </div>
             </div>
         </section>
-        <!-- Section 5: Experience -->
-        <section class="contact" id="experience">
-            <h2 class="section-title">Experience</h2>
-            <div class="contact-container">
-                <div class="contact-info glass">
-                    <h3>ทดลองใช้โมเดล</h3>
-                    <p>เพียงแค่ถ่ายรูปดอกไม้<span> Upload </span>แล้วรอการประมวลผล <br>
-                        ดอกที่สามารถใช้ได้ ได้แก่<br><span>ทองอุไร ชบา พู่ระหง กระดังงา พุดน้ำบุศย์ ลีลาวดี</span> <br>
-                        <mark style="color: #de28d5; background-color: transparent">(Accepted File Formats: .jpg, .jpeg, .png)</mark>
-                    </p>
-                </div>
-                <!-- Updated File Upload Section -->
-                <div class="form-group file-upload-container">
-                    <input type="file" id="file-input" name="flower_image" accept=".jpg,.jpeg,.png,.webp" required>
-                    <label for="file-input" class="custom-file-label">Choose an Image</label>
-                    <div class="image-preview">
-                        <img id="image-preview" src="" alt="Preview" style="display: none;">
+        <!-- Section 4: Upload & Predict -->
+        <section class="upload-section" id="experience">
+            <div class="upload-container glass">
+                <h2 class="section-title">Upload & Predict Flower</h2>
+                <div class="upload-content">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="file-input" accept="image/*">
+                        <label for="file-input" class="file-label">Choose Image</label>
+                        <p id="file-name-display" class="file-name">No file selected.</p>
                     </div>
-                    <button type="button" id="submit-btn" class="submit-btn">Submit</button>
+                    <div id="image-preview" class="image-preview">
+                        <p style="color: #00ffff; opacity: 0.6;">Image preview will appear here</p>
+                    </div>
+                    <button id="submit-btn" class="submit-btn">Submit</button>
                 </div>
             </div>
         </section>
-        <!-- Image Revealer Section -->
-        <section class="image-revealer">
-            <div class="image-revealer-container glass">
-                <input type="file" id="image-revealer-input" accept="image/*">
-                <label for="image-revealer-input" class="custom-file-label">Choose an Image</label>
-                <div class="image-preview">
-                    <img id="image-preview" src="" alt="Preview" style="display: none;">
+
+        <!-- Section 5: Flower Information -->
+        <section class="flower-info" id="flower-info" style="display: none;">
+            <div class="flower-info-container glass">
+                <h2 class="section-title">Flower Information</h2>
+                <div class="flower-details">
+                    <div class="flower-prediction">
+                        <h3 id="flower-name"></h3>
+                        <p id="flower-confidence"></p>
+                    </div>
+                    <div class="flower-characteristics">
+                        <div id="flower-info-content"></div>
+                    </div>
                 </div>
             </div>
         </section>
+
         <!-- Footer -->
         <footer>
             <div class="footer-content">
                 <div class="footer-links">
                     <a href="#description">Descriptions</a>
                     <a href="#purpose">Purposes</a>
-                    <a href="#timeline">Timelines</a>
-                    <a href="#try">Experience</a>
+                    <a href="#experience">Experience</a>
                     <a href="https://colab.research.google.com/drive/1u_RdcNmP1eapDImKitLif36qXr1c9UsO?usp=sharing" target="_blank" rel="nofollow noopener">Colab</a>
                 </div>
                 <div class="footer-copyright">
@@ -229,14 +423,7 @@
                 </div>
             </div>
         </footer>
+        <script src="api-client.js"></script>
         <script src="script.js"></script>
     </body>
 </html>
-
-
-
-
-
-
-
-

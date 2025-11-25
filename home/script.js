@@ -148,113 +148,154 @@ document.querySelectorAll(".timeline-content, .hexagon").forEach((el) => {
   observer.observe(el);
 });
 
-if (submitBtn) {
-  submitBtn.addEventListener('click', async function (e) {
-    e.preventDefault();
-    const fileInput = document.getElementById('file-input');
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-      alert('Please choose a file to upload');
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) {
-      alert('Invalid file type. Allowed: jpg, jpeg, png, webp');
-      return;
-    }
-
-    submitBtn.innerText = 'Submitting';
-
-    const nicknameInput = document.querySelector('input[name="nickname"]');
-    const nickname = (nicknameInput && nicknameInput.value) ? nicknameInput.value : 'anonymous';
-    const toBase64 = (f) => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(f);
-    });
-
-    try {
-      const dataBase64 = await toBase64(file);
-      const payload = { filename: file.name, mimetype: file.type, dataBase64, nickname };
-      const res = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      const data = await res.json();
-      if (data && data.success) {
-        submitBtn.innerText = 'Submission Completed';
-        setTimeout(() => { submitBtn.innerText = 'Submit'; }, 2000);
-      } else {
-        alert('Upload failed');
-        submitBtn.innerText = 'Submit';
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Upload error');
-      submitBtn.innerText = 'Submit';
-    }
-  });
-}
-
+// ===== FLOWER PREDICTION SECTION =====
 document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.getElementById('file-input');
-    const fileNameDisplay = document.getElementById('file-name-display');
+  const fileInput = document.getElementById('file-input');
+  const imagePreview = document.getElementById('image-preview');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  const submitBtn = document.getElementById('submit-btn');
 
-    if (fileInput && fileNameDisplay) {
-        fileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                fileNameDisplay.textContent = this.files[0].name;
-                fileNameDisplay.style.opacity = '1'; 
-            } else {
-                fileNameDisplay.textContent = 'No file selected.';
-                fileNameDisplay.style.opacity = '0.7'; 
-            }
-        });
-    }
-});
-const fileInput = document.getElementById("file-input");
-const imagePreview = document.getElementById("image-preview");
-const submitBtn = document.getElementById("submit-btn");
+  console.log('✓ DOM loaded, initializing flower prediction...');
+  console.log('Elements found:', { fileInput: !!fileInput, imagePreview: !!imagePreview, submitBtn: !!submitBtn });
 
-if (fileInput && imagePreview) {
-  fileInput.addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        imagePreview.src = e.target.result;
-        imagePreview.style.display = "block";
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-}
+  // Image preview on file selection
+  if (fileInput && imagePreview) {
+    fileInput.addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      
+      console.log('File selected:', file?.name);
 
-if (submitBtn) {
-  submitBtn.addEventListener("click", async () => {
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-      alert("Please choose a file to upload");
-      return;
-    }
+      if (file) {
+        // Update file name
+        if (fileNameDisplay) {
+          fileNameDisplay.textContent = `Selected: ${file.name}`;
+          fileNameDisplay.style.opacity = '1';
+        }
 
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append("flower_image", file);
-
-    try {
-      const response = await fetch("/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        alert(`Prediction: ${result.prediction} (Confidence: ${result.confidence}%)`);
+        // Display image
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          console.log('Image loaded successfully');
+          imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px;">`;
+        };
+        reader.onerror = (error) => {
+          console.error('FileReader error:', error);
+          alert('Error reading file');
+        };
+        reader.readAsDataURL(file);
       } else {
-        alert("Prediction failed. Please try again.");
+        if (fileNameDisplay) {
+          fileNameDisplay.textContent = 'No file selected.';
+          fileNameDisplay.style.opacity = '0.7';
+        }
+        imagePreview.innerHTML = '<p style="color: #00ffff; opacity: 0.6;">Image preview will appear here</p>';
       }
-    } catch (error) {
-      console.error("Error during prediction:", error);
-      alert("An error occurred. Please try again.");
+    });
+  }
+
+  // Handle prediction submission
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      console.log('Submit button clicked');
+
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        alert('Please choose an image file');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      console.log('Processing file:', file.name, file.type, file.size);
+
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      
+      if (!allowed.includes(file.type)) {
+        alert(`Invalid file type: ${file.type}\nAllowed: jpg, jpeg, png, webp`);
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Processing...';
+        console.log('Calling flower prediction API...');
+
+        const result = await flowerAPI.predictFlower(file);
+
+        console.log('Prediction successful:', result);
+
+        if (result.success) {
+          alert(`Prediction: ${result.prediction}\nConfidence: ${result.confidence.toFixed(2)}%`);
+          
+          // Display flower information
+          await displayFlowerInfo(result.prediction, result.confidence);
+          
+          submitBtn.textContent = 'Submission Completed';
+          setTimeout(() => {
+            submitBtn.textContent = 'Submit';
+            submitBtn.disabled = false;
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('Prediction error:', error);
+        alert(`Error: ${error.message}`);
+        submitBtn.textContent = 'Submit';
+        submitBtn.disabled = false;
+      }
+    });
+  } else {
+    console.error('Submit button not found!');
+  }
+});
+
+// Display flower information from informations.json
+async function displayFlowerInfo(flowerClass, confidence) {
+  try {
+    console.log('Fetching flower info for:', flowerClass);
+    
+    // Fetch from root informations.json
+    const response = await fetch('../informations.json');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load informations.json: ${response.status}`);
     }
-  });
+
+    const informations = await response.json();
+    console.log('✓ Informations loaded');
+
+    if (informations[flowerClass]) {
+      const flowerData = informations[flowerClass];
+      const flowerInfoSection = document.getElementById('flower-info');
+      const flowerName = document.getElementById('flower-name');
+      const flowerConfidence = document.getElementById('flower-confidence');
+      const flowerInfoContent = document.getElementById('flower-info-content');
+
+      flowerName.textContent = flowerClass.toUpperCase();
+      flowerConfidence.textContent = `Confidence: ${confidence.toFixed(2)}%`;
+
+      let infoHTML = '';
+      for (const [key, value] of Object.entries(flowerData)) {
+        infoHTML += `
+          <div>
+            <strong>${key}</strong>
+            <p>${value}</p>
+          </div>
+        `;
+      }
+
+      flowerInfoContent.innerHTML = infoHTML;
+      flowerInfoSection.style.display = 'block';
+
+      // Scroll to flower info section
+      setTimeout(() => {
+        flowerInfoSection.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+      
+      console.log('✓ Flower info displayed');
+    } else {
+      alert(`Flower information not found for: ${flowerClass}`);
+    }
+  } catch (error) {
+    console.error('Error fetching flower information:', error);
+    alert(`Error: ${error.message}`);
+  }
 }
