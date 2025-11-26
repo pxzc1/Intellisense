@@ -1,6 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const menuToggle = document.querySelector('menuToggle');
-    const navMenu = document.getElementById('navMenu');
+document.addEventListener('DOMContentLoaded'), () => {
+    document.addEventListener('DOMContentLoaded', () => {
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const navMenu = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('nav a');
     const sections = document.querySelectorAll('section');
     const header = document.querySelector('header');
@@ -60,4 +61,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themeToggle) themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-theme');
     });
-});
+})};
