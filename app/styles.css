@@ -1411,12 +1411,7 @@ footer {
   .footer-links a {
     font-size: 0.85rem;
   }
-
-  /*
-  * FIX: Add fallback images for mobile browsers that don't support .webp
-  * Make sure you have .jpg (or .png) versions of these files
-  * in your 'asset/imgs/' folder.
-  */
+  
   .feature-row:nth-child(1) .feature-visual {
     background-image: url("asset/imgs/machinelearning.jpg");
   }
@@ -1440,4 +1435,22 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(45deg, #ff0080, #8000ff);
   box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
+}
+#flower-info-content {
+    font-family: 'Arial', sans-serif;
+    color: #ffffff;
+    line-height: 1.6;
+    font-size: 16px;
+}
+
+#flower-info-content strong {
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    color: #00ffff;
+}
+
+#flower-info-content p {
+    font-family: 'Verdana', sans-serif; 
+    margin: 4px 0 12px 0;
+    color: #cccccc;
 }
