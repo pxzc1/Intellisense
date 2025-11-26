@@ -65,16 +65,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileNameDisplay = document.getElementById('file-name-display');
     const imagePreview = document.getElementById('image-preview');
     const submitBtn = document.getElementById('submit-btn');
+    const flowerInfoSection = document.getElementById('flower-info');
+    const flowerNameEl = document.getElementById('flower-name');
+    const flowerConfidenceEl = document.getElementById('flower-confidence');
+    const flowerInfoContent = document.getElementById('flower-info-content');
+
+    let informations = {};
+
+    fetch('informations.json')
+        .then(res => res.json())
+        .then(data => informations = data);
 
     fileInput.addEventListener('change', () => {
         const file = fileInput.files[0];
         if (file) {
             fileNameDisplay.textContent = file.name;
+
             const reader = new FileReader();
             reader.onload = e => {
                 imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             };
             reader.readAsDataURL(file);
+
             submitBtn.disabled = false;
         } else {
             fileNameDisplay.textContent = 'No file selected.';
@@ -88,37 +100,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
 
         const formData = new FormData();
-        formData.append('image', file);
+        formData.append('file', file);
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Predicting...';
 
         try {
-            const response = await fetch('/predict', {
+            const response = await fetch('https://backend-compute.up.railway.app/predict', {
                 method: 'POST',
                 body: formData
             });
             const result = await response.json();
 
-            const flowerSection = document.getElementById('flower-info');
-            const flowerName = document.getElementById('flower-name');
-            const flowerConfidence = document.getElementById('flower-confidence');
-            const flowerInfoContent = document.getElementById('flower-info-content');
+            if (result.error) throw new Error(result.error);
 
-            flowerName.textContent = result.class;
-            flowerConfidence.textContent = `Confidence: ${result.confidence}%`;
+            const className = result.class;
+            const confidence = result.confidence;
 
-            const infoResponse = await fetch('informations.json');
-            const infos = await infoResponse.json();
-            const flowerData = infos[result.class] || [];
+            flowerNameEl.textContent = className;
+            flowerConfidenceEl.textContent = `Confidence: ${confidence}%`;
 
             flowerInfoContent.innerHTML = '';
-            flowerData.forEach(char => {
-                const div = document.createElement('div');
-                div.innerHTML = `<strong>${char.title}</strong><p>${char.detail}</p>`;
-                flowerInfoContent.appendChild(div);
-            });
+            if (informations[className]) {
+                informations[className].forEach(info => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<strong>${info.title}</strong><p>${info.text}</p>`;
+                    flowerInfoContent.appendChild(div);
+                });
+            }
 
-            flowerSection.style.display = 'block';
+            flowerInfoSection.style.display = 'block';
         } catch (err) {
-            console.error('Error sending image:', err);
+            alert('Prediction failed: ' + err.message);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
         }
     });
 });
