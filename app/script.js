@@ -117,16 +117,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const className = result.class;
             const confidence = result.confidence;
 
-            flowerNameEl.textContent = className;
+            flowerNameEl.textContent = `Predicted Class: ${className}`;
             flowerConfidenceEl.textContent = `Confidence: ${confidence}%`;
 
-            flowerInfoContent.innerHTML = '';
             if (informations[className]) {
-                informations[className].forEach(info => {
-                    const div = document.createElement('div');
-                    div.innerHTML = `<strong>${info.title}</strong><p>${info.text}</p>`;
-                    flowerInfoContent.appendChild(div);
-                });
+              informations[className].forEach(info => {
+              const div = document.createElement('div');
+              div.innerHTML = `<strong>${info.label}</strong><p>${info.value}</p>`;
+              flowerInfoContent.appendChild(div);
+              });
             }
 
             flowerInfoSection.style.display = 'block';
