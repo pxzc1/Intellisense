@@ -60,4 +60,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themeToggle) themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-theme');
     });
+
+    const fileInput = document.getElementById('file-input');
+    const fileNameDisplay = document.getElementById('file-name-display');
+    const imagePreview = document.getElementById('image-preview');
+    const submitBtn = document.getElementById('submit-btn');
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+            fileNameDisplay.textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(file);
+
+            submitBtn.disabled = false;
+        } else {
+            fileNameDisplay.textContent = 'No file selected.';
+            imagePreview.innerHTML = `<p style="color: #00ffff; opacity: 0.6;">Image preview will appear here</p>`;
+            submitBtn.disabled = true;
+        }
+    });
+
+    submitBtn.addEventListener('click', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        console.log('Submitting file:', file.name);
+        alert(`File "${file.name}" ready to submit!`);
+    });
 });
