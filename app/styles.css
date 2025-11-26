@@ -1437,20 +1437,20 @@ footer {
   box-shadow: 0 0 15px rgba(255, 0, 128, 0.7);
 }
 #flower-info-content {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Prompt', sans-serif;
     color: #ffffff;
     line-height: 1.6;
     font-size: 16px;
 }
 
 #flower-info-content strong {
-    font-family: 'Georgia', serif;
+    font-family: 'Prompt', sans-serif;
     font-weight: bold;
     color: #00ffff;
 }
 
 #flower-info-content p {
-    font-family: 'Verdana', sans-serif; 
+    font-family: 'Prompt', sans-serif; 
     margin: 4px 0 12px 0;
     color: #cccccc;
 }
