@@ -42,3 +42,4 @@ class FlowerPredictionAPI {
 }
 
 export const flowerAPI = new FlowerPredictionAPI();
+window.flowerAPI = flowerAPI;
