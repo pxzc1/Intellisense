@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const menuToggle = document.getElementById('menuToggle');
+    const menuToggle = document.querySelector('menuToggle');
     const navMenu = document.getElementById('navMenu');
     const navLinks = document.querySelectorAll('nav a');
     const sections = document.querySelectorAll('section');
