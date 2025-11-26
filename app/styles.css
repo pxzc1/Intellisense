@@ -1455,10 +1455,9 @@ footer {
   color: #cccccc;
 }
 
-.upload-section,
-.flower-info {
+.upload-section {
   padding: 100px 20px;
-  background: none;
+  background: linear-gradient(135deg, rgba(10, 10, 30, 0.7), rgba(30, 10, 50, 0.7));
   position: relative;
   overflow: hidden;
 }
