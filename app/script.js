@@ -1,5 +1,4 @@
-document.addEventListener('DOMContentLoaded'), () => {
-    document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const menuToggle = document.querySelector('.mobile-menu-toggle');
     const navMenu = document.querySelector('.nav-links');
     const navLinks = document.querySelectorAll('nav a');
@@ -61,4 +60,4 @@ document.addEventListener('DOMContentLoaded'), () => {
     if (themeToggle) themeToggle.addEventListener('click', () => {
         document.body.classList.toggle('dark-theme');
     });
-})};
+});
