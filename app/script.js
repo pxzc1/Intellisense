@@ -70,13 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = fileInput.files[0];
         if (file) {
             fileNameDisplay.textContent = file.name;
-
             const reader = new FileReader();
             reader.onload = e => {
                 imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             };
             reader.readAsDataURL(file);
-
             submitBtn.disabled = false;
         } else {
             fileNameDisplay.textContent = 'No file selected.';
@@ -85,11 +83,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    submitBtn.addEventListener('click', () => {
+    submitBtn.addEventListener('click', async () => {
         const file = fileInput.files[0];
         if (!file) return;
 
-        console.log('Submitting file:', file.name);
-        alert(`File "${file.name}" ready to submit!`);
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+
+            const flowerSection = document.getElementById('flower-info');
+            const flowerName = document.getElementById('flower-name');
+            const flowerConfidence = document.getElementById('flower-confidence');
+            const flowerInfoContent = document.getElementById('flower-info-content');
+
+            flowerName.textContent = result.class;
+            flowerConfidence.textContent = `Confidence: ${result.confidence}%`;
+
+            const infoResponse = await fetch('informations.json');
+            const infos = await infoResponse.json();
+            const flowerData = infos[result.class] || [];
+
+            flowerInfoContent.innerHTML = '';
+            flowerData.forEach(char => {
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${char.title}</strong><p>${char.detail}</p>`;
+                flowerInfoContent.appendChild(div);
+            });
+
+            flowerSection.style.display = 'block';
+        } catch (err) {
+            console.error('Error sending image:', err);
+        }
     });
 });
