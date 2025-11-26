@@ -1,3 +1,4 @@
+import { flowerAPI } from "./api-client";
 const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
 const mobileNav = document.querySelector(".mobile-nav");
 

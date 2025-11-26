@@ -42,6 +42,3 @@ class FlowerPredictionAPI {
 }
 
 export const flowerAPI = new FlowerPredictionAPI();
-if (typeof window !== "undefined") {
-  window.flowerAPI = flowerAPI;
-}
