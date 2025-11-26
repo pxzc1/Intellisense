@@ -1,234 +1,133 @@
-const mobileMenuToggle = document.querySelector(".mobile-menu-toggle");
-const mobileNav = document.querySelector(".mobile-nav");
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+menuToggle.addEventListener('click', () => navLinks.classList.toggle('active'));
 
-mobileMenuToggle.addEventListener("click", () => {
-  mobileMenuToggle.classList.toggle("active");
-  mobileNav.classList.toggle("active");
+document.querySelectorAll('.scroll-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(btn.getAttribute('href'));
+        target.scrollIntoView({ behavior: 'smooth' });
+    });
 });
 
-document.querySelectorAll(".mobile-nav a").forEach((link) => {
-  link.addEventListener("click", () => {
-    mobileMenuToggle.classList.remove("active");
-    mobileNav.classList.remove("active");
-  });
+const imageInput = document.getElementById('flower-image');
+const previewImage = document.getElementById('preview');
+const submitBtn = document.getElementById('submit-btn');
+const resultSection = document.getElementById('flower-result');
+const flowerName = document.getElementById('flower-name');
+const flowerConfidence = document.getElementById('flower-confidence');
+const flowerCharacteristics = document.getElementById('flower-characteristics');
+
+imageInput.addEventListener('change', () => {
+    const file = imageInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => previewImage.src = e.target.result;
+    reader.readAsDataURL(file);
 });
 
-document.addEventListener("click", (e) => {
-  if (!mobileMenuToggle.contains(e.target) && !mobileNav.contains(e.target)) {
-    mobileMenuToggle.classList.remove("active");
-    mobileNav.classList.remove("active");
-  }
-});
+submitBtn.addEventListener('click', async () => {
+    const file = imageInput.files[0];
+    if (!file) return alert('Please select an image!');
 
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-    const targetId = this.getAttribute("href");
-    if (targetId === "#") return;
-    const target = document.querySelector(targetId);
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  });
-});
-
-window.addEventListener("scroll", () => {
-  const header = document.querySelector("header");
-  const scrolled = window.pageYOffset;
-  if (scrolled > 50) header.classList.add("scrolled");
-  else header.classList.remove("scrolled");
-});
-
-function updateActiveMenuItem() {
-  const sections = document.querySelectorAll("section[id]");
-  const navLinks = document.querySelectorAll(".nav-links a, .mobile-nav a");
-  let currentSection = "";
-  const scrollPos = window.pageYOffset + 100;
-
-  sections.forEach((section) => {
-    const sectionTop = section.offsetTop;
-    const sectionHeight = section.offsetHeight;
-    if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
-      currentSection = section.getAttribute("id");
-    }
-  });
-
-  navLinks.forEach((link) => {
-    link.classList.remove("active");
-    if (link.getAttribute("href") === `#${currentSection}`) {
-      link.classList.add("active");
-    }
-  });
-}
-
-window.addEventListener("scroll", updateActiveMenuItem);
-window.addEventListener("load", updateActiveMenuItem);
-
-window.addEventListener("scroll", () => {
-  const shapes = document.querySelectorAll(".shape");
-  const scrolled = window.pageYOffset;
-  shapes.forEach((shape, index) => {
-    const speed = (index + 1) * 0.3;
-    shape.style.transform = `translateY(${scrolled * speed}px) rotate(${scrolled * 0.1}deg)`;
-  });
-});
-
-const neuralLines = document.querySelectorAll(".neural-line");
-setInterval(() => {
-  neuralLines.forEach((line, index) => {
-    setTimeout(() => {
-      line.style.opacity = "1";
-      line.style.transform = "scaleX(1.2)";
-      setTimeout(() => {
-        line.style.opacity = "0.2";
-        line.style.transform = "scaleX(0.5)";
-      }, 200);
-    }, index * 300);
-  });
-}, 2000);
-
-function createQuantumParticle() {
-  const particle = document.createElement("div");
-  const colorOptions = ["#00ffff", "#ff0080", "#8000ff"];
-  const color = colorOptions[Math.floor(Math.random() * colorOptions.length)];
-
-  particle.style.position = "fixed";
-  particle.style.width = particle.style.height = `${Math.random() * 4 + 1}px`;
-  particle.style.background = color;
-  particle.style.borderRadius = "50%";
-  particle.style.left = `${Math.random() * 100}%`;
-  particle.style.top = "100vh";
-  particle.style.pointerEvents = "none";
-  particle.style.zIndex = "-1";
-  particle.style.boxShadow = `0 0 10px ${color}`;
-
-  document.body.appendChild(particle);
-
-  const duration = Math.random() * 3000 + 2000;
-  const drift = (Math.random() - 0.5) * 200;
-
-  particle.animate(
-    [
-      { transform: "translateY(0px) translateX(0px)", opacity: 0 },
-      { transform: `translateY(-100vh) translateX(${drift}px)`, opacity: 1 },
-    ],
-    { duration: duration, easing: "ease-out" }
-  ).onfinish = () => particle.remove();
-}
-
-setInterval(createQuantumParticle, 1500);
-
-const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry) => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = "1";
-      entry.target.style.transform = "translateY(0)";
-    }
-  });
-}, observerOptions);
-
-document.querySelectorAll(".timeline-content, .hexagon").forEach((el) => {
-  el.style.opacity = "0";
-  el.style.transform = "translateY(50px)";
-  el.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-  observer.observe(el);
-});
-
-import { flowerAPI } from './home/api-client.js';
-
-document.addEventListener('DOMContentLoaded', function() {
-  const fileInput = document.getElementById('file-input');
-  const imagePreview = document.getElementById('image-preview');
-  const fileNameDisplay = document.getElementById('file-name-display');
-  const submitBtn = document.getElementById('submit-btn');
-
-  fileInput.addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (file) {
-      fileNameDisplay.textContent = `Selected: ${file.name}`;
-      fileNameDisplay.style.opacity = '1';
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-      };
-      reader.readAsDataURL(file);
-    } else {
-      fileNameDisplay.textContent = 'No file selected.';
-      fileNameDisplay.style.opacity = '0.7';
-      imagePreview.innerHTML = '<p style="color:#00ffff; opacity:0.6;">Image preview will appear here</p>';
-    }
-  });
-
-  submitBtn.addEventListener('click', async function(e) {
-    e.preventDefault();
-    if (!fileInput.files.length) {
-      alert('Please choose an image file');
-      return;
-    }
-
-    const file = fileInput.files[0];
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) {
-      alert(`Invalid file type: ${file.type}`);
-      return;
-    }
+    const formData = new FormData();
+    formData.append('image', file);
 
     try {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Processing...';
-
-      const result = await flowerAPI.predictFlower(file);
-
-      if (result.success) {
-        alert(`Prediction: ${result.prediction}\nConfidence: ${result.confidence.toFixed(2)}%`);
-        await displayFlowerInfo(result.prediction, result.confidence);
-        submitBtn.textContent = 'Submission Completed';
-        setTimeout(() => {
-          submitBtn.textContent = 'Submit';
-          submitBtn.disabled = false;
-        }, 2000);
-      } else {
-        throw new Error(result.error);
-      }
-    } catch (error) {
-      alert(`Error: ${error.message}`);
-      submitBtn.textContent = 'Submit';
-      submitBtn.disabled = false;
+        const response = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await response.json();
+        flowerName.textContent = data.name;
+        flowerConfidence.textContent = `${(data.confidence * 100).toFixed(2)}%`;
+        flowerCharacteristics.textContent = data.characteristics || 'N/A';
+        resultSection.style.display = 'block';
+        resultSection.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+        console.error(err);
+        alert('Prediction failed. Try again.');
     }
-  });
 });
 
-async function displayFlowerInfo(flowerClass, confidence) {
-  try {
-    const response = await fetch('../informations.json');
-    if (!response.ok) throw new Error(`Failed to load informations.json: ${response.status}`);
-    const informations = await response.json();
+document.querySelectorAll('.hexagon').forEach(hex => {
+    hex.addEventListener('mouseenter', () => hex.classList.add('active'));
+    hex.addEventListener('mouseleave', () => hex.classList.remove('active'));
+});
 
-    if (informations[flowerClass]) {
-      const flowerData = informations[flowerClass];
-      const flowerInfoSection = document.getElementById('flower-info');
-      const flowerName = document.getElementById('flower-name');
-      const flowerConfidence = document.getElementById('flower-confidence');
-      const flowerInfoContent = document.getElementById('flower-info-content');
-
-      flowerName.textContent = flowerClass.toUpperCase();
-      flowerConfidence.textContent = `Confidence: ${confidence.toFixed(2)}%`;
-
-      let infoHTML = '';
-      for (const [key, value] of Object.entries(flowerData)) {
-        infoHTML += `<div><strong>${key}</strong><p>${value}</p></div>`;
-      }
-
-      flowerInfoContent.innerHTML = infoHTML;
-      flowerInfoSection.style.display = 'block';
-      setTimeout(() => {
-        flowerInfoSection.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
-    } else {
-      alert(`Flower information not found for: ${flowerClass}`);
-    }
-  } catch (error) {
-    alert(`Error fetching flower information: ${error.message}`);
-  }
+const shapes = document.querySelectorAll('.floating-shape');
+function animateShapes() {
+    shapes.forEach((shape, i) => {
+        const t = Date.now() / 2000 + i;
+        shape.style.transform = `translate(${Math.sin(t) * 30}px, ${Math.cos(t) * 20}px) rotate(${t * 50}deg)`;
+    });
+    requestAnimationFrame(animateShapes);
 }
+animateShapes();
+
+const neuralCanvas = document.getElementById('neural-background');
+const ctx = neuralCanvas.getContext('2d');
+
+function resizeCanvas() { 
+    neuralCanvas.width = window.innerWidth; 
+    neuralCanvas.height = window.innerHeight; 
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+const nodes = Array.from({ length: 50 }, () => ({
+    x: Math.random() * neuralCanvas.width,
+    y: Math.random() * neuralCanvas.height,
+    vx: (Math.random() - 0.5) * 0.5,
+    vy: (Math.random() - 0.5) * 0.5
+}));
+
+function drawNeuralBackground() {
+    ctx.clearRect(0, 0, neuralCanvas.width, neuralCanvas.height);
+    nodes.forEach((node, i) => {
+        node.x += node.vx; node.y += node.vy;
+        if (node.x < 0 || node.x > neuralCanvas.width) node.vx *= -1;
+        if (node.y < 0 || node.y > neuralCanvas.height) node.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+
+        for (let j = i + 1; j < nodes.length; j++) {
+            const dx = node.x - nodes[j].x;
+            const dy = node.y - nodes[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+                ctx.beginPath();
+                ctx.moveTo(node.x, node.y);
+                ctx.lineTo(nodes[j].x, nodes[j].y);
+                ctx.strokeStyle = `rgba(255,255,255,${1 - dist / 100})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+    });
+    requestAnimationFrame(drawNeuralBackground);
+}
+drawNeuralBackground();
+
+const gradientText = document.querySelectorAll('.gradient-text');
+let hue = 0;
+function animateGradientText() {
+    hue += 0.5;
+    gradientText.forEach(el => {
+        el.style.background = `linear-gradient(90deg, hsl(${hue}, 80%, 60%), hsl(${(hue+60)%360}, 80%, 60%))`;
+        el.style.backgroundClip = 'text';
+        el.style.webkitBackgroundClip = 'text';
+        el.style.color = 'transparent';
+    });
+    requestAnimationFrame(animateGradientText);
+}
+animateGradientText();
+
+const fadeSections = document.querySelectorAll('.fade-section');
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.1 });
+
+fadeSections.forEach(section => observer.observe(section));
