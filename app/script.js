@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const confidence = result.confidence;
 
             flowerNameEl.textContent = `Predicted Class: ${className}`;
-            flowerConfidenceEl.textContent = `Confidence: ${confidence}%`;
+            flowerConfidenceEl.textContent = `ความมั่นใจ: ${confidence}%`;
 
             if (informations[className]) {
               informations[className].forEach(info => {
