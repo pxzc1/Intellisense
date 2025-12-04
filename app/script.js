@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             flowerConfidenceEl.textContent = `ความมั่นใจ: ${confidence}%`;
 
             if (informations[className]) {
+              flowerInfoContent.innerHTML == "";
               informations[className].forEach(info => {
               const div = document.createElement('div');
               div.innerHTML = `<strong>${info.label}</strong><p>${info.value}</p>`;
